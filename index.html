@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tic-Tac-Toe with AI</title>
+<style>
+:root{ --bg:#000; --fg:#fff; --accent:#00ff99; --cell-size:100px; }
+body{ margin:0; font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--fg); display:flex; flex-direction:column; align-items:center; }
+header{ width:100%; background:#111; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; }
+header h2{margin:0; color:var(--accent)}
+nav{display:flex; gap:12px}
+nav a{ text-decoration:none; color:var(--fg); border:1px solid rgba(255,255,255,0.12); padding:6px 12px; border-radius:6px; }
+nav a:hover{ background:rgba(255,255,255,0.08)}
+.container{margin-top:20px; text-align:center}
+.board{display:grid; grid-template-columns:repeat(3, var(--cell-size)); gap:8px;}
+.cell{width:var(--cell-size);height:var(--cell-size);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;border-radius:10px;background:rgba(255,255,255,0.02)}
+.cell.disabled{cursor:default;opacity:0.85}
+.status{margin:12px 0;font-weight:600}
+.countdown{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<header>
+<h2>Tic-Tac-Toe</h2>
+<nav>
+<a href="index.html">Home</a>
+<a href="about.html">About</a>
+<a href="privacy.html">Privacy Policy</a>
+</nav>
+</header>
+
+
+<div class="container">
+<h1>You (X) vs AI (O)</h1>
+<div class="board" id="board"></div>
+<div class="status" id="status">Your turn</div>
+<button id="restartBtn">Restart Now</button>
+</div>
+
+
+<script>
+const boardEl=document.getElementById('board');
+const statusEl=document.getElementById('status');
+const restartBtn=document.getElementById('restartBtn');
+let board=Array(9).fill('');
+const human='X'; const ai='O'; let busy=false;
+
+
+function render(){ boardEl.innerHTML=''; board.forEach((v,i)=>{ const c=document.createElement('div'); c.className='cell'+(v?' disabled':''); c.dataset.index=i; c.textContent=v; c.onclick=onClick; boardEl.appendChild(c); }); }
+function onClick(e){const i=+e.target.dataset.index;if(busy||board[i])return; move(i,human);let r=check();if(r)return end(r);busy=true;setTimeout(()=>{move(bestMove(),ai);busy=false;let r2=check();if(r2)end(r2);},250);}
+function move(i,p){board[i]=p;render();}
+function check(){const w=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const [a,b,c] of w)if(board[a]&&board[a]==board[b]&&board[a]==board[c])return{winner:board[a]};if(board.every(x=>x))return{winner:'draw'};return null;}
+function end(r){statusEl.textContent=r.winner==='draw'?'Draw!':(r.winner===human?'You Win!':'You Lose!'); setTimeout(reset,2000);}
+function reset(){board=Array(9).fill('');statusEl.textContent='Your turn';render();}
+function bestMove(){let best=-1,bestScore=-Infinity;for(let i=0;i<9;i++){if(!board[i]){board[i]=ai;let score=minimax(board,0,false);board[i]='';if(score>bestScore){bestScore=score;best=i;}}}return best;}
+function minimax(b,d,max){let r=check();if(r){if(r.winner===ai)return 10-d;if(r.winner===human)return d-10;return 0;}if(max){let best=-Infinity;for(let i=0;i<9;i++){if(!b[i]){b[i]=ai;best=Math.max(best,minimax(b,d+1,false));b[i]='';}}return best;}else{let best=Infinity;for(let i=0;i<9;i++){if(!b[i]){b[i]=human;best=Math.min(best,minimax(b,d+1,true));b[i]='';}}return best;}}
+restartBtn.onclick=reset;
+reset();
+</script>
+</body>
+</html>
