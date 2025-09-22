@@ -1,3 +1,4 @@
-User-agent:*
-Allow:/
+User-agent: *
+Disallow: 
+Disallow: /cgi-bin/
 Sitemap: https://tic-tac-toe-nine-beta-59.vercel.app/sitemap.xml
